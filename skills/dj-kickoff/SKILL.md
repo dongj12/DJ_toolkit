@@ -54,6 +54,10 @@ description: 과제를 처음 받았을 때 README와 제공 파일을 분석해
 - [ ] R1 ...
 
 ## 결정 기록
+### D0. 사용한 공개 도구
+- 선택: DJ_toolkit@<`git -C ~/DJ_toolkit rev-parse --short HEAD` 결과> (https://github.com/dongj12/DJ_toolkit)
+- 범위: 작업 규칙·검증 스크립트·문서 틀만 사용. 과제 로직은 이번 작업에서 새로 작성
+
 (결정이 생길 때마다 $dj-decision-log 형식으로 추가)
 
 ## 검증 결과

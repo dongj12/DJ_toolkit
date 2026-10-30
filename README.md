@@ -12,7 +12,9 @@ codex
 
 - **작업 폴더 밖(`~/DJ_toolkit`)에 clone하세요.** 작업 폴더 안에 넣으면 제출물에 섞입니다.
 - 설치하는 곳은 `~/.codex/skills/`(스킬)와 `~/.codex/AGENTS.md`(작업 규칙)뿐입니다. 이미 있는 파일은 덮어쓰지 않고, `config.toml`은 건드리지 않습니다.
+- Codex를 켤 때 **업데이트 질문이 나오면 거절**하세요 (제공된 Codex 업데이트 금지).
 - Codex에서 `/skills`를 입력해 `dj-*`가 보이면 설치된 것입니다.
+- `/skills`에 안 보이면 이름 대신 파일을 읽게 하세요: `~/DJ_toolkit/skills/dj-kickoff/SKILL.md 읽고 그대로 해줘`. 규칙은 `~/DJ_toolkit/AGENTS.md 읽고 이번 작업 내내 따라줘`.
 - 화면 확인용 브라우저를 미리 받아두려면 `bash ~/DJ_toolkit/install.sh --browser`(약 100MB)를 실행하세요.
 
 ## 들어 있는 것
@@ -26,7 +28,7 @@ codex
 | `$dj-checkpoint` | 기능 단위 git 커밋 (.gitignore 정리, push 안 함) |
 | `$dj-submit-check` | 제출 전 요구사항 대조 + 비밀 정보·임시 파일·TODO·계획 문서 점검 |
 | `$dj-explain` | 서술형 대비: 내 작업 한 장 브리핑 + 예상 질문 6개 (터미널에만 출력) |
-| `templates/` | FastAPI / Express 최소 뼈대 (테스트 포함), .gitignore, PLAN 템플릿 |
+| `templates/` | FastAPI / Express 최소 뼈대 (테스트 포함), .gitignore, PLAN 템플릿. 복사는 `cp -Rn`으로 (과제 README 보호) |
 | `mcp/` | 키 없이 쓰는 공개 MCP 설정(Playwright, Context7). 선택 사항 |
 | `docs/codex-cheatsheet.md` | Codex 슬래시 명령과 상황별 한 줄 요청 |
 

@@ -92,7 +92,7 @@ if [ "$WITH_BROWSER" = 1 ]; then
   if command -v npx >/dev/null 2>&1; then
     say "INFO  브라우저 설치 중 (1~2분)..."
     mkdir -p /tmp/dj-ui && cd /tmp/dj-ui
-    if [ "$(id -u)" = 0 ] || sudo -n true 2>/dev/null; then DEPS="--with-deps"; else DEPS=""; fi
+    if [ "$(id -u)" = 0 ]; then DEPS="--with-deps"; else DEPS=""; fi
     if npx --yes --package "$PWCLI_PKG" playwright-cli install-browser chromium $DEPS >/tmp/dj-ui/install.log 2>&1 \
        || npx --yes --package "$PWCLI_PKG" playwright-cli install-browser chromium >>/tmp/dj-ui/install.log 2>&1; then
       say "OK    브라우저 설치 (로그: /tmp/dj-ui/install.log)"

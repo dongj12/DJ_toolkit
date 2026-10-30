@@ -20,8 +20,8 @@ fi
 OPEN_LOG=$(pw open --browser=chromium "$URL" 2>&1)
 if echo "$OPEN_LOG" | grep -qiE "executable doesn't exist|is not found|install-browser|playwright install|browserType.launch"; then
   echo "INFO  브라우저가 없어 설치합니다 (1~2분)..."
-  # --with-deps 는 apt 설치가 필요하므로 root 이거나 비밀번호 없는 sudo 일 때만 시도
-  if [ "$(id -u)" = 0 ] || sudo -n true 2>/dev/null; then
+  # --with-deps 는 apt 설치가 필요하므로 이미 root 일 때만 시도 (sudo 로 우회하지 않는다)
+  if [ "$(id -u)" = 0 ]; then
     pw install-browser chromium --with-deps >/tmp/dj-ui/install.log 2>&1 \
       || pw install-browser chromium >>/tmp/dj-ui/install.log 2>&1
   else
@@ -32,8 +32,7 @@ fi
 if ! echo "$OPEN_LOG" | grep -q "Page URL"; then
   echo "FAIL  페이지를 열지 못했습니다:"
   echo "$OPEN_LOG" | grep -iE "missing|shared librar|not found|error:" | grep -v "^\s*at " | head -6
-  echo "      시스템 라이브러리가 없으면 (sudo 가능할 때): sudo npx --yes --package $PWCLI_PKG playwright-cli install-browser chromium --with-deps"
-  echo "      sudo가 안 되면 화면 확인은 생략하고 smoke.sh(HTTP 확인)와 Browser 미리보기로 대신하세요."
+  echo "      시스템 라이브러리가 없으면 화면 자동 점검은 생략하고, smoke.sh(HTTP 확인)와 Browser 탭 직접 확인으로 대신하세요."
   exit 1
 fi
 
