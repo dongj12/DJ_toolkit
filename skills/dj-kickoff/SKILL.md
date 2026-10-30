@@ -11,7 +11,7 @@ description: 과제를 처음 받았을 때 README와 제공 파일을 분석해
 
 1. 작업 폴더 구조를 본다: `ls -la`, `find . -maxdepth 2 -not -path '*/node_modules*' -not -path '*/.git/*' | head -100`
 2. README와 과제 안내 문서를 끝까지 읽는다. 제공된 데이터·코드·테스트가 있으면 무엇인지 파악한다.
-3. git 상태를 확인한다: `git status`. 저장소가 아니면 `git init` 후 첫 커밋("초기 상태: 제공 파일")을 만든다.
+3. git 상태를 확인한다: `git status`. 저장소가 아니면 `git init` 후 첫 커밋("[INIT] 초기 상태: 제공 파일 그대로")을 만든다.
 4. 아래 형식으로 사용자에게 보고한다.
 
 ## 보고 형식
