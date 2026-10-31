@@ -44,8 +44,29 @@ fi
 mkdir -p "$SKILLS_DIR" 2>/dev/null || { say "FAIL  $SKILLS_DIR 를 만들 수 없습니다 (권한 확인)"; exit 1; }
 
 # ---------- 1) 스킬 ----------
+# Codex는 $이름 을 SKILL.md 의 name: 으로 찾고, 같은 이름이 여럿이면 하나만 쓴다.
+# 그래서 이 툴킷 것이 아닌 같은 이름의 스킬이 이미 있으면, 우리 것을 dj-<이름> 으로 설치한다.
+RENAMED=()     # "원래이름=새이름"
+INSTALLED=()   # 실제 설치된 이름
+skill_name_of() { sed -n 's/^name:[[:space:]]*//p' "$1" | head -1 | tr -d '"'"'"'\r'; }
+taken_by_other() {  # $1=이름 → 이 툴킷 것이 아닌 같은 이름 스킬이 있으면 0
+  local f d
+  for f in "$SKILLS_DIR"/*/SKILL.md "$SKILLS_DIR"/.system/*/SKILL.md \
+           "$HOME"/.agents/skills/*/SKILL.md "$PWD"/.agents/skills/*/SKILL.md; do
+    [ -f "$f" ] || continue
+    d=$(dirname "$f")
+    [ -f "$d/$MARK" ] && continue
+    [ "$(skill_name_of "$f")" = "$1" ] && return 0
+  done
+  return 1
+}
 install_skill() {  # $1=원본 폴더  $2=이름
-  local src="$1" name="$2" dst="$SKILLS_DIR/$2"
+  local src="$1" name="$2" dst
+  if taken_by_other "$name" || { [ -e "$SKILLS_DIR/$name" ] && [ ! -f "$SKILLS_DIR/$name/$MARK" ]; }; then
+    RENAMED+=("$name=dj-$name")
+    name="dj-$name"
+  fi
+  dst="$SKILLS_DIR/$name"
   if [ -e "$dst" ] && [ ! -f "$dst/$MARK" ]; then
     say "SKIP  스킬 $name: 같은 이름이 이미 있어 건드리지 않음 ($dst)"
     return
@@ -54,11 +75,29 @@ install_skill() {  # $1=원본 폴더  $2=이름
   cp -R "$src" "$dst"
   touch "$dst/$MARK"
   find "$dst" -name '*.sh' -exec chmod +x {} +
-  say "OK    스킬 $name"
+  if [ "$name" != "$2" ]; then
+    awk -v n="$name" 'BEGIN{done=0} !done && /^name:/{print "name: " n; done=1; next} {print}' \
+      "$dst/SKILL.md" > "$dst/SKILL.md.tmp" && mv "$dst/SKILL.md.tmp" "$dst/SKILL.md"
+  fi
+  INSTALLED+=("$name")
+  say "OK    스킬 \$$name"
 }
 for s in "$ROOT"/skills/*/; do
   install_skill "${s%/}" "$(basename "$s")"
 done
+
+# 이름이 바뀐 스킬이 있으면, 우리 스킬 문서 안의 서로 부르는 이름도 맞춘다
+fix_refs() {  # $@=파일들
+  local pair from to
+  for pair in ${RENAMED[@]+"${RENAMED[@]}"}; do
+    from="${pair%%=*}"; to="${pair#*=}"
+    perl -pi -e 's/\$\Q'"$from"'\E(?![A-Za-z0-9_:-])/\$'"$to"'/g' "$@" 2>/dev/null \
+      || say "WARN  perl 이 없어 문서 안의 \$$from 표기를 \$$to 로 바꾸지 못함"
+  done
+}
+if [ ${#RENAMED[@]} -gt 0 ]; then
+  for n in ${INSTALLED[@]+"${INSTALLED[@]}"}; do fix_refs "$SKILLS_DIR/$n/SKILL.md"; done
+fi
 
 # ---------- 2) AGENTS.md (전역 작업 규칙) ----------
 G="$CODEX_HOME/AGENTS.md"
@@ -67,6 +106,7 @@ if [ -f "$CODEX_HOME/AGENTS.override.md" ]; then
   say "      대신 Codex 첫 메시지에서 '$ROOT/AGENTS.md 를 읽고 따라줘'라고 요청하세요."
 elif [ ! -s "$G" ] || grep -q "DJ_toolkit" "$G"; then
   cp "$ROOT/AGENTS.md" "$G"
+  [ ${#RENAMED[@]} -gt 0 ] && fix_refs "$G"
   say "OK    작업 규칙 → $G"
 else
   say "SKIP  $G 가 이미 있어 건드리지 않음 (플랫폼 제공일 수 있음)."
@@ -105,12 +145,23 @@ if [ "$WITH_BROWSER" = 1 ]; then
   fi
 fi
 
+NAMES=""
+for n in ${INSTALLED[@]+"${INSTALLED[@]}"}; do NAMES="$NAMES \$$n "; done
+FIRST="${INSTALLED[0]:-start}"
+for n in ${INSTALLED[@]+"${INSTALLED[@]}"}; do case "$n" in start|dj-start) FIRST="$n" ;; esac; done
+
 cat <<EOF
 
 설치 완료. 다음 단계:
   1. Codex가 실행 중이면 /quit 후 다시 codex 실행 (스킬·규칙은 시작할 때 읽음)
-  2. /skills 에서 dj-* 스킬이 보이는지 확인
-  3. 첫 요청:  \$dj-kickoff 과제 README 분석해줘
+  2. /skills 에서 아래 스킬이 보이는지 확인
+  3. 첫 요청:  \$$FIRST 과제 README 분석해줘
 
-스킬: \$dj-kickoff  \$dj-decision-log  \$dj-verify  \$dj-checkpoint  \$dj-submit-check  \$dj-explain
+스킬:$NAMES
 EOF
+if [ ${#RENAMED[@]} -gt 0 ]; then
+  say ""
+  say "!!!!  같은 이름의 스킬이 이미 있어서 아래 스킬은 이름을 바꿔 설치했습니다:"
+  for pair in ${RENAMED[@]+"${RENAMED[@]}"}; do say "        \$${pair%%=*}  →  \$${pair#*=}"; done
+  say "      이 스킬들은 바뀐 이름으로 부르세요."
+fi

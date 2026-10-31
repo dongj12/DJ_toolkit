@@ -1,5 +1,5 @@
 ---
-name: dj-checkpoint
+name: commit
 description: 지금까지의 변경을 git 커밋으로 남긴다(세이브 포인트). 기능 하나 완성, 버그 수정, 테스트 통과 직후나 사용자가 "커밋해줘", "저장해줘"라고 할 때 사용한다. push는 하지 않는다.
 ---
 
