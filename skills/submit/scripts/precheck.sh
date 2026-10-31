@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # 제출 전 기계적 점검: 커밋 안 된 변경, 비밀 정보, 큰 파일, 임시 산출물, TODO, 계획 문서
-# 사용법: precheck.sh [작업폴더]   (기본: 현재 폴더)
+# 사용법: precheck.sh [작업폴더] [계획문서]   예) precheck.sh . DESIGN.md
+#   계획문서를 안 주면 PLAN.md → 결정 기록(### D1) 이 있는 다른 .md 순서로 찾는다.
 set -uo pipefail
 cd "${1:-.}" || exit 1
+PLAN_ARG="${2:-}"
 
 EXCL='--exclude-dir=node_modules --exclude-dir=.git --exclude-dir=.venv --exclude-dir=venv --exclude-dir=__pycache__ --exclude-dir=dist --exclude-dir=build'
 WARN=0
@@ -41,14 +43,19 @@ TODO=$(grep -rInE $EXCL '\b(TODO|FIXME|XXX)\b' --include='*.py' --include='*.js'
 [ -n "$TODO" ] && warn "남은 TODO/FIXME:" && echo "$TODO" | cut -c1-140 || ok "TODO/FIXME 없음"
 
 # 6) 계획 문서
-PLAN=$(ls PLAN.md plan.md docs/PLAN.md 2>/dev/null | head -1)
+if [ -n "$PLAN_ARG" ]; then
+  PLAN=$([ -f "$PLAN_ARG" ] && echo "$PLAN_ARG")
+else
+  PLAN=$(ls PLAN.md plan.md docs/PLAN.md 2>/dev/null | head -1)
+  [ -z "$PLAN" ] && PLAN=$(grep -rlE $EXCL --include='*.md' '^### D[0-9]+' . 2>/dev/null | head -1)
+fi
 if [ -n "$PLAN" ]; then
   D=$(grep -cE '^### D[0-9]+' "$PLAN" || true)
   ok "계획 문서: $PLAN (결정 기록 ${D}개)"
   grep -qE '검증' "$PLAN" || warn "$PLAN 에 검증 결과가 없습니다"
   grep -qE '한계' "$PLAN" || warn "$PLAN 에 남은 한계가 없습니다"
 else
-  warn "PLAN.md 가 없습니다 (README가 다른 이름을 지정했는지 확인)"
+  warn "계획 문서(${PLAN_ARG:-PLAN.md})가 없습니다 (README가 지정한 이름이면: precheck.sh . <파일명>)"
 fi
 
 echo

@@ -9,7 +9,8 @@ description: 제출 직전 최종 점검 — README 요구사항 대비 충족 �
 
 1. 기계적 점검 스크립트를 실행한다 (이 SKILL.md 옆 `scripts/precheck.sh`):
    ```bash
-   bash <이 스킬 폴더>/scripts/precheck.sh .
+   bash <이 스킬 폴더>/scripts/precheck.sh .                # 계획 문서가 PLAN.md 일 때
+   bash <이 스킬 폴더>/scripts/precheck.sh . <계획문서명>    # README가 다른 이름을 지정했을 때
    ```
 2. README를 다시 열어 요구사항을 하나씩 대조한다. 각 항목에 근거(파일·함수·테스트·확인 방법)를 붙인다.
 3. README가 지정한 필수 파일명·경로·형식이 정확히 맞는지 확인한다 (대소문자, 확장자 포함).
