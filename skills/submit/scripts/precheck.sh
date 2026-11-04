@@ -16,7 +16,7 @@ if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   N=$(git status --porcelain | wc -l | tr -d ' ')
   if [ "$N" = 0 ]; then ok "커밋 안 된 변경 없음 (커밋 $(git rev-list --count HEAD 2>/dev/null || echo 0)개)"
   else warn "커밋 안 된 변경 ${N}개:"; git status --short | head -15; fi
-  TRACKED_JUNK=$(git ls-files | grep -E '(^|/)(node_modules|\.venv|venv|__pycache__|\.playwright-cli)/|\.env$' | head -5)
+  TRACKED_JUNK=$(git ls-files | grep -E '(^|/)(node_modules|\.venv|venv|__pycache__)/|\.env$' | head -5)
   [ -n "$TRACKED_JUNK" ] && warn "커밋되면 안 되는 파일이 추적 중:" && echo "$TRACKED_JUNK"
 else
   warn "git 저장소가 아닙니다 (작업 이력이 남지 않음)"
@@ -35,7 +35,7 @@ BIG=$(find . -type f -size +5M -not -path './.git/*' -not -path '*/node_modules/
 [ -n "$BIG" ] && warn "5MB 넘는 파일 (정말 제출물인지 확인):" && echo "$BIG" || ok "큰 파일 없음"
 
 # 4) 임시 산출물
-JUNK=$(find . -maxdepth 3 \( -name '.playwright-cli' -o -name '*.log' -o -name 'shot-*.png' -o -name '.DS_Store' \) -not -path './.git/*' -not -path '*/node_modules/*' 2>/dev/null | head -10)
+JUNK=$(find . -maxdepth 3 \( -name '*.log' -o -name '.DS_Store' \) -not -path './.git/*' -not -path '*/node_modules/*' 2>/dev/null | head -10)
 [ -n "$JUNK" ] && warn "임시 산출물로 보이는 파일:" && echo "$JUNK" || ok "임시 산출물 없음"
 
 # 5) TODO / FIXME

@@ -6,8 +6,7 @@
 #
 # 사용법:
 #   bash install.sh                 # 스킬 + AGENTS.md
-#   bash install.sh --browser       # + 화면 확인용 헤드리스 브라우저 미리 설치 (~100MB)
-#   bash install.sh --openai-skills # + OpenAI 공개 스킬(playwright, security-best-practices)
+#   bash install.sh --openai-skills # + OpenAI 공개 스킬(security-best-practices)
 #   bash install.sh --uninstall     # 이 툴킷이 설치한 것만 제거
 set -euo pipefail
 
@@ -15,12 +14,10 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 SKILLS_DIR="$CODEX_HOME/skills"
 MARK=".dj_toolkit"
-PWCLI_PKG="@playwright/cli@0.1.22"
 
-WITH_BROWSER=0; WITH_OPENAI=0; UNINSTALL=0
+WITH_OPENAI=0; UNINSTALL=0
 for a in "$@"; do
   case "$a" in
-    --browser) WITH_BROWSER=1 ;;
     --openai-skills) WITH_OPENAI=1 ;;
     --uninstall) UNINSTALL=1 ;;
     -h|--help) sed -n '2,13p' "$0"; exit 0 ;;
@@ -117,32 +114,14 @@ fi
 if [ "$WITH_OPENAI" = 1 ]; then
   TMP="$(mktemp -d)"
   if git clone -q --depth 1 --filter=blob:none --sparse https://github.com/openai/skills.git "$TMP/skills" 2>/dev/null \
-     && git -C "$TMP/skills" sparse-checkout set skills/.curated/playwright skills/.curated/security-best-practices >/dev/null 2>&1; then
-    for n in playwright security-best-practices; do
+     && git -C "$TMP/skills" sparse-checkout set skills/.curated/security-best-practices >/dev/null 2>&1; then
+    for n in security-best-practices; do
       install_skill "$TMP/skills/skills/.curated/$n" "$n"
     done
   else
     say "WARN  github.com/openai/skills 를 가져오지 못했습니다 (네트워크 확인). 나머지는 정상."
   fi
   rm -rf "$TMP"
-fi
-
-# ---------- 4) 헤드리스 브라우저 (선택) ----------
-if [ "$WITH_BROWSER" = 1 ]; then
-  if command -v npx >/dev/null 2>&1; then
-    say "INFO  브라우저 설치 중 (1~2분)..."
-    mkdir -p /tmp/dj-ui && cd /tmp/dj-ui
-    if [ "$(id -u)" = 0 ]; then DEPS="--with-deps"; else DEPS=""; fi
-    if npx --yes --package "$PWCLI_PKG" playwright-cli install-browser chromium $DEPS >/tmp/dj-ui/install.log 2>&1 \
-       || npx --yes --package "$PWCLI_PKG" playwright-cli install-browser chromium >>/tmp/dj-ui/install.log 2>&1; then
-      say "OK    브라우저 설치 (로그: /tmp/dj-ui/install.log)"
-    else
-      say "WARN  브라우저 설치 실패 — tail /tmp/dj-ui/install.log 확인. 화면 확인 없이도 나머지는 정상."
-    fi
-    cd - >/dev/null
-  else
-    say "WARN  npx 가 없어 브라우저 설치를 건너뜀"
-  fi
 fi
 
 NAMES=""

@@ -19,7 +19,6 @@ description: 지금까지의 변경을 git 커밋으로 남긴다(세이브 포�
    __pycache__/
    *.pyc
    .env
-   .playwright-cli/
    dist/
    build/
    .DS_Store
