@@ -26,7 +26,7 @@ codex
 | `$verify` | 테스트 실행 + 서버 스모크(포트·바인딩·HTTP) + Browser 탭에서 직접 확인할 PORT·URL과 확인 항목 안내 |
 | `$commit` | 기능 단위 git 커밋 (.gitignore 정리, push 안 함) |
 | `$submit` | 제출 전 요구사항 대조 + 비밀 정보·임시 파일·TODO·계획 문서 점검 |
-| `$brief` | 서술형 대비: 내 작업 한 장 브리핑 + 예상 질문 6개 (터미널에만 출력) |
+| `$brief` | 내 작업 정리 + 설명 연습 질문(선택 이유·AI 협업·동작 흐름 등). `$brief 연습`은 질문을 하나씩 내고 내 답을 점검 (터미널에만 출력) |
 | `templates/` | FastAPI / Express 최소 뼈대 (테스트 포함), .gitignore, PLAN 템플릿. 복사는 `cp -Rn`으로 (과제 README 보호) |
 | `mcp/` | 키 없이 쓰는 공개 MCP 설정(Context7). 선택 사항 |
 | `docs/codex-cheatsheet.md` | Codex 슬래시 명령과 상황별 한 줄 요청 |
@@ -34,13 +34,14 @@ codex
 ## 과제 중 흐름
 
 ```
-$start        → 요구사항·계획 확정 (처음 10분)
+$start       → 요구사항·계획 확정 (처음 10분)
   기능 구현
-  $log → 결정할 때마다
-  $verify       → 기능마다
-  $commit   → 기능마다
-$submit   → 종료 20분 전
-$brief        → 제출 직전 5분
+  $log       → 결정할 때마다, AI가 막혔다가 해결했을 때
+  $verify    → 기능마다
+  $commit    → 기능마다
+$submit      → 종료 35분 전 (문서·요구사항 최종 점검)
+$brief       → 종료 25분 전 (작업 정리 읽기)
+$brief 연습  → 질문에 직접 답해 보며 점검, 종료 10분 전 제출 시작
 ```
 
 ## 직접 실행할 수 있는 스크립트
